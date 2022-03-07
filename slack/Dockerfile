@@ -11,3 +11,4 @@ FROM scratch
 COPY --from=build /src/release/linux/s390x/drone-slack /usr/local/bin/
 ENTRYPOINT ["/usr/local/bin/drone-slack"]
 # test
+# testing
