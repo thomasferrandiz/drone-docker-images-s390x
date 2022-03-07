@@ -14,4 +14,4 @@ ENV GODEBUG netdns=go
 
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /src/release/linux/s390x/drone-convert-pathschanged /usr/local/bin/ 
-ENTRYPOINT ["/user/local/bin/drone-convert-pathschanged"]
+ENTRYPOINT ["/usr/local/bin/drone-convert-pathschanged"]

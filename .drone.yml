@@ -1,0 +1,30 @@
+---
+kind: pipeline
+name: default-linux-s390x
+
+platform:
+  os: linux
+  arch: amd64
+
+node:
+  arch: s390x
+
+steps:
+- name: build-slack-image
+  image: plugins/docker
+  settings:
+    purge: false
+    #context: package/
+    dockerfile: slack/Dockerfile
+    repo: luistt/drone-images 
+    tag: slack-s390x
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+  when:
+    paths:
+      include:
+      - "slack/Dockerfile"
+      exclude:
+      - .drone.yml
