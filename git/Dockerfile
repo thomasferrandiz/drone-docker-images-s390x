@@ -1,4 +1,4 @@
-FROM golang:1.17.5-alpine AS build
+FROM golang:1.17.5-alpine3.15 AS build
 RUN apk add --no-cache git
 ARG upstream=https://github.com/drone/drone-git
 ARG version=v1.2.1
