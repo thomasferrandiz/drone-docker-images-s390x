@@ -11,7 +11,8 @@ node:
 
 steps:
 - name: build-slack-image
-  image: plugins/docker
+  image: docker-s390x:latest
+  pull: never
   settings:
     purge: false
     #context: package/
