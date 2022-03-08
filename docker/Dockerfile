@@ -5,7 +5,7 @@ ARG version=v20.11.0
 
 WORKDIR /src
 RUN git clone --depth=1 --branch=${version} ${upstream} .
-RUN GOOS=linux GOARCH=s390x CGO_ENABLED=0 GO111MODULE=on go build -v -a -tags netgo -o release/linux/s390x/drone-docker
+RUN GOOS=linux GOARCH=s390x CGO_ENABLED=0 GO111MODULE=on go build -v -a -tags netgo -o release/linux/s390x/drone-docker ./cmd/drone-docker
 
 FROM s390x/docker:dind
 

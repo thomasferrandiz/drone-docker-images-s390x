@@ -10,5 +10,3 @@ RUN GOOS=linux GOARCH=s390x CGO_ENABLED=0 GO111MODULE=on go build -v -a -tags ne
 FROM scratch
 COPY --from=build /src/release/linux/s390x/drone-slack /usr/local/bin/
 ENTRYPOINT ["/usr/local/bin/drone-slack"]
-# test
-# testing
