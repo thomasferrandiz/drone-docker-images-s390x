@@ -10,4 +10,3 @@ FROM alpine:3.15.0
 RUN apk add --no-cache ca-certificates git git-lfs openssh curl perl aws-cli sudo
 COPY --from=build /src/posix /usr/local/bin/
 ENTRYPOINT ["/usr/local/bin/clone"]
-
