@@ -10,22 +10,76 @@ node:
   arch: s390x
 
 steps:
-- name: build-slack-image
-  image: docker-s390x:latest
+- name: build
+  image: luistt/docker-s390x:latest
+  #environment:
+  #  COMPONENT: echo ${DRONE_TAG} | awk 'BEGIN{FS=OFS="-"}{print $2}' 
+  #  TAG: echo ${DRONE_TAG} | awk 'BEGIN{FS=OFS="-"}{print $1}'
+  commands:
+  - export TAG=`echo $DRONE_TAG | awk 'BEGIN{FS=OFS="-"}{print $1}'`
+  - export COMPONENT=`echo $DRONE_TAG | awk 'BEGIN{FS=OFS="-"}{print $2}'`
+  - export FOUND_COMPONENT=`ls -d */ | tr -d '/' | grep -w $COMPONENT | wc -l`
+  - if [ $FOUND_COMPONENT -eq 0 ]; then echo "Component has not a defined folder" && exit 128; fi 
+  - docker build -t luistt/drone-images:$COMPONENT-$TAG -f $COMPONENT/Dockerfile .
+  - echo "COMPONENT=$COMPONENT" > .tags
+  - echo "TAG=$TAG" >> .tags
+  volumes:
+  - name: docker
+    path: /var/run/docker.sock
+  - name: env-file
+    path: /usr/etc/
   pull: never
+  when:
+    event:
+    - tag
+    instance:
+    - drone.suse.dev
+
+- name: docker-publish
+  image: rancher/drone-images:docker-s390x
+  volumes:
+    - name: docker
+      path: /var/run/docker.sock
+    #- name: env-file
+    #  path: /usr/etc/
+  commands:
+  - export TAG=`echo $DRONE_TAG | awk 'BEGIN{FS=OFS="-"}{print $1}'`
+  - export COMPONENT=`echo $DRONE_TAG | awk 'BEGIN{FS=OFS="-"}{print $2}'`
+  #- echo $password | docker login -u $username --password-stdin
+  - /usr/local/bin/dockerd-entrypoint.sh /bin/drone-docker
+  #- env
+  #- echo $username
+  #- echo $password | docker login -u $username --password-stdin
+  #- docker push luistt/s390x-$COMPONENT:$TAG
   settings:
+    #build-args:
+    # - VERSION=${DRONE_BRANCH/release\//}-${DRONE_COMMIT}-head
     purge: false
-    #context: package/
-    dockerfile: slack/Dockerfile
-    repo: luistt/drone-images 
-    tag: slack-s390x
-    username:
-      from_secret: docker_username
+    context: ${DRONE_TAG#v*-}
+    custom_dns: 1.1.1.1
+    dockerfile: ${DRONE_TAG#v*-}/Dockerfile
     password:
       from_secret: docker_password
+    repo: luistt/drone-images
+    tag: "${DRONE_TAG}"
+    username:
+      from_secret: docker_username
   when:
-    paths:
-      include:
-      - "slack/Dockerfile"
-      exclude:
-      - .drone.yml
+    event:
+    - tag
+
+  
+  #when:
+    #paths:
+    #  include:
+    #  - "slack/Dockerfile"
+    #  exclude:
+    #  - .drone.yml
+volumes:
+- name: docker
+  host:
+    path: /var/run/docker.sock
+- name: env-file
+  host:
+    path: /usr/etc/
+
