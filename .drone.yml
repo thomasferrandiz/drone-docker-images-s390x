@@ -1,0 +1,57 @@
+---
+kind: pipeline
+name: default-linux-s390x
+
+platform:
+  os: linux
+  arch: amd64
+
+node:
+  arch: s390x
+
+steps:
+- name: build
+  image: luistt/docker-s390x:latest
+  commands:
+  - export TAG=`echo $DRONE_TAG | awk 'BEGIN{FS=OFS="-"}{print $1}'`
+  - export COMPONENT=`echo $DRONE_TAG | awk 'BEGIN{FS=OFS="-"}{print $2}'`
+  - export FOUND_COMPONENT=`ls -d */ | tr -d '/' | grep -w $COMPONENT | wc -l`
+  - if [ $FOUND_COMPONENT -eq 0 ]; then echo "Component has not a defined folder" && exit 128; fi
+  - docker build -t luistt/drone-images:$COMPONENT-$TAG -f $COMPONENT/Dockerfile .
+  volumes:
+  - name: docker
+    path: /var/run/docker.sock
+  pull: never
+  when:
+    event:
+    - tag
+    instance:
+    - drone.suse.dev
+
+- name: docker-publish
+  image: rancher/drone-images:docker-s390x
+  volumes:
+    - name: docker
+      path: /var/run/docker.sock
+  settings:
+    purge: false
+    context: ${DRONE_TAG#v*-}
+    custom_dns: 1.1.1.1
+    dockerfile: ${DRONE_TAG#v*-}/Dockerfile
+    password:
+      from_secret: docker_password
+    repo: luistt/drone-images
+    tag: "${DRONE_TAG}"
+    username:
+      from_secret: docker_username
+  when:
+    event:
+    - tag
+  
+  depends_on:
+  - build
+
+volumes:
+- name: docker
+  host:
+    path: /var/run/docker.sock
