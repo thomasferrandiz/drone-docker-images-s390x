@@ -11,7 +11,7 @@ node:
 
 steps:
 - name: build
-  image: luistt/docker-s390x:latest
+  image: luistt/drone-images:v0.0.1-docker-s390x
   commands:
   - export TAG=`echo $DRONE_TAG | awk 'BEGIN{FS=OFS="-"}{print $1}'`
   - export COMPONENT=`echo $DRONE_TAG | awk 'BEGIN{FS=OFS="-"}{print $2}'`
@@ -29,7 +29,7 @@ steps:
     - drone.suse.dev
 
 - name: docker-publish
-  image: rancher/drone-images:docker-s390x
+  image: luistt/drone-images:v0.0.1-docker-s390x
   volumes:
     - name: docker
       path: /var/run/docker.sock
