@@ -1,5 +1,6 @@
-FROM golang:1.17.5-alpine3.15 AS build
-RUN apk add --no-cache git
+ARG GO_IMAGE=rancher/hardened-build-base:v1.16.9b7
+
+FROM ${GO_IMAGE} AS build
 ARG upstream=https://github.com/drone-plugins/drone-docker
 ARG version=v20.11.0
 
