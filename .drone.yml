@@ -11,13 +11,14 @@ node:
 
 steps:
 - name: build
-  image: luistt/docker-s390x:latest
+  image: rancher/drone-images:docker-s390x
+  pull: if-not-exists
   commands:
   - export TAG=`echo $DRONE_TAG | awk 'BEGIN{FS=OFS="-"}{print $1}'`
   - export COMPONENT=`echo $DRONE_TAG | awk 'BEGIN{FS=OFS="-"}{print $2}'`
   - export FOUND_COMPONENT=`ls -d */ | tr -d '/' | grep -w $COMPONENT | wc -l`
   - if [ $FOUND_COMPONENT -eq 0 ]; then echo "Component has not a defined folder or the tag is not well defined. Check README" && exit 128; fi
-  - docker build -t luistt/drone-images:$COMPONENT-$TAG -f $COMPONENT/Dockerfile .
+  - docker build -t luistt/drone-images:$COMPONENT-$TAG-s390x -f $COMPONENT/Dockerfile .
   volumes:
   - name: docker
     path: /var/run/docker.sock
@@ -30,6 +31,7 @@ steps:
 
 - name: docker-publish
   image: rancher/drone-images:docker-s390x
+  pull: if-not-exists
   volumes:
     - name: docker
       path: /var/run/docker.sock
@@ -41,7 +43,7 @@ steps:
     password:
       from_secret: docker_password
     repo: luistt/drone-images
-    tag: "${DRONE_TAG}"
+    tag: ${DRONE_TAG}-s390x
     username:
       from_secret: docker_username
   when:
