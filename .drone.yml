@@ -17,7 +17,7 @@ steps:
   - export COMPONENT=`echo $DRONE_TAG | awk 'BEGIN{FS=OFS="-"}{print $2}'`
   - export FOUND_COMPONENT=`ls -d */ | tr -d '/' | grep -w $COMPONENT | wc -l`
   - if [ $FOUND_COMPONENT -eq 0 ]; then echo "Component has not a defined folder or the tag is not well defined. Check README" && exit 128; fi
-  - docker build -t luistt/drone-images:$COMPONENT-$TAG -f $COMPONENT/Dockerfile .
+  - docker build -t rancher/drone-images:$COMPONENT-$TAG -f $COMPONENT/Dockerfile .
   volumes:
   - name: docker
     path: /var/run/docker.sock
@@ -40,7 +40,7 @@ steps:
     dockerfile: ${DRONE_TAG#v*-}/Dockerfile
     password:
       from_secret: docker_password
-    repo: luistt/drone-images
+    repo: rancher/drone-images
     tag: "${DRONE_TAG}"
     username:
       from_secret: docker_username
