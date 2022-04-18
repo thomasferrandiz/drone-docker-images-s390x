@@ -2,6 +2,9 @@
 kind: pipeline
 name: default-linux-s390x
 
+environment:
+  arch: s390x
+
 platform:
   os: linux
   arch: amd64
@@ -17,7 +20,7 @@ steps:
   - export COMPONENT=`echo $DRONE_TAG | awk 'BEGIN{FS=OFS="-"}{print $2}'`
   - export FOUND_COMPONENT=`ls -d */ | tr -d '/' | grep -w $COMPONENT | wc -l`
   - if [ $FOUND_COMPONENT -eq 0 ]; then echo "Component has not a defined folder or the tag is not well defined. Check README" && exit 128; fi
-  - docker build -t luistt/drone-images:$COMPONENT-$TAG -f $COMPONENT/Dockerfile .
+  - docker build -t luistt/drone-images:$COMPONENT-$TAG-$arch -f $COMPONENT/Dockerfile .
   volumes:
   - name: docker
     path: /var/run/docker.sock
@@ -41,7 +44,7 @@ steps:
     password:
       from_secret: docker_password
     repo: luistt/drone-images
-    tag: "${DRONE_TAG}"
+    tag: "${DRONE_TAG}-$arch"
     username:
       from_secret: docker_username
   when:
